@@ -63,30 +63,36 @@
    python manage.py shell
    ```
  в Django Shell:
- ```from django.contrib.auth.models import User
+ ```
+from django.contrib.auth.models import User
 from pets.models import Breed
 from rest_framework_simplejwt.tokens import RefreshToken
-
-# Создание пользователя
+```
+#Создание пользователя
+```
 user = User.objects.create_user(username='kittenlover', password='kittenpassword')
-
+```
 # Генерация JWT токена для конкретного пользователя
+```
 refresh = RefreshToken.for_user(user)
 token_data = {
     'refresh': str(refresh),
     'access': str(refresh.access_token),
 }
-
+```
 # Создание пород
+```
 breed1 = Breed.objects.create(name='Siamese')
 breed2 = Breed.objects.create(name='Persian')
 breed3 = Breed.objects.create(name='Maine Coon')
-
+```
 # Проверка созданных объектов
+```
 print(User.objects.all())
 print(Breed.objects.all())
-
+```
 # Печать токенов только для созданного пользователя
+```
 print(f"Tokens for user '{user.username}':")
 print("Refresh Token:", token_data['refresh'])
 print("Access Token:", token_data['access'])
