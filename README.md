@@ -63,8 +63,7 @@
    python manage.py shell
    ```
  в Django Shell:
- 
-   ```from django.contrib.auth.models import User
+ ```from django.contrib.auth.models import User
 from pets.models import Breed
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -91,7 +90,7 @@ print(Breed.objects.all())
 print(f"Tokens for user '{user.username}':")
 print("Refresh Token:", token_data['refresh'])
 print("Access Token:", token_data['access'])
-   ```
+```
   Реализовал сигнал, который создает еще один токен автоматом и показывает его. Время жизни токена установлено 60 минут, для более удобного тестирования(настраиваестя в settings.py проекта)
   С помощью токена можно протестировать api в ```http://127.0.0.1:8000/swagger/```. В настрйоках настроены SECURITY_DEFINITIONS в SWAGGER_SETTINGS.
 
