@@ -64,35 +64,33 @@
    ```
  в Django Shell:
  
-   ```
-      from django.contrib.auth.models import User
-      from pets.models import Breed
-      from rest_framework_simplejwt.tokens import RefreshToken
-      
-      # Создание пользователя
-      user = User.objects.create_user(username='kittenlover', password='kittenpassword')
-      
-      # Генерация JWT токена для конкретного пользователя
-      refresh = RefreshToken.for_user(user)
-      token_data = {
-          'refresh': str(refresh),
-          'access': str(refresh.access_token),
-      }
-      
-      # Создание пород
-      breed1 = Breed.objects.create(name='Siamese')
-      breed2 = Breed.objects.create(name='Persian')
-      breed3 = Breed.objects.create(name='Maine Coon')
-      
-      # Проверка созданных объектов
-      print(User.objects.all())
-      print(Breed.objects.all())
-      
-      # Печать токенов только для созданного пользователя
-      print(f"Tokens for user '{user.username}':")
-      print("Refresh Token:", token_data['refresh'])
-      print("Access Token:", token_data['access'])
+   ```from django.contrib.auth.models import User
+from pets.models import Breed
+from rest_framework_simplejwt.tokens import RefreshToken
 
+# Создание пользователя
+user = User.objects.create_user(username='kittenlover', password='kittenpassword')
+
+# Генерация JWT токена для конкретного пользователя
+refresh = RefreshToken.for_user(user)
+token_data = {
+    'refresh': str(refresh),
+    'access': str(refresh.access_token),
+}
+
+# Создание пород
+breed1 = Breed.objects.create(name='Siamese')
+breed2 = Breed.objects.create(name='Persian')
+breed3 = Breed.objects.create(name='Maine Coon')
+
+# Проверка созданных объектов
+print(User.objects.all())
+print(Breed.objects.all())
+
+# Печать токенов только для созданного пользователя
+print(f"Tokens for user '{user.username}':")
+print("Refresh Token:", token_data['refresh'])
+print("Access Token:", token_data['access'])
    ```
   Реализовал сигнал, который создает еще один токен автоматом и показывает его. Время жизни токена установлено 60 минут, для более удобного тестирования(настраиваестя в settings.py проекта)
   С помощью токена можно протестировать api в ```http://127.0.0.1:8000/swagger/```. В настрйоках настроены SECURITY_DEFINITIONS в SWAGGER_SETTINGS.
