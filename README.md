@@ -68,7 +68,7 @@ from django.contrib.auth.models import User
 from pets.models import Breed
 from rest_framework_simplejwt.tokens import RefreshToken
 ```
-#Создание пользователя
+Создание пользователя
 ```
 user = User.objects.create_user(username='kittenlover', password='kittenpassword')
 ```
