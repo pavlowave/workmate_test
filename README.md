@@ -47,11 +47,7 @@
    ```
    cd backend
    ```
-   Создаем файл .env со следующим содержимым:
-   ```
-   SECRET_KEY='django-insecure-hr6$9j654uu8n4o61gha#+&5mu!a3889ow*yf&w^hha313r3uy'
-   ```
-6. **Создаем БД:**:
+5. **Создаем БД:**:
    ```
    python manage.py migrate makemigrations
    python manage.py migrate
