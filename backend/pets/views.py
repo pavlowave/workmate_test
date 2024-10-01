@@ -1,11 +1,11 @@
-# pets/views.py
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Kitten, Breed, Rating
 from .serializers import KittenSerializer, BreedSerializer, RatingSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
+
 
 class BreedViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Breed.objects.all()
@@ -13,10 +13,10 @@ class BreedViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.AllowAny]
 
 class KittenViewSet(viewsets.ModelViewSet):
+    queryset = Kitten.objects.all()
     serializer_class = KittenSerializer
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
-    queryset = Kitten.objects.all()
 
     def get_permissions(self):
         # Разрешения для авторизованных пользователей
@@ -73,10 +73,10 @@ class RatingViewSet(viewsets.ModelViewSet):
     queryset = Rating.objects.all()
 
     def perform_create(self, serializer):
-        
+
         kitten_id = self.request.data.get('kitten')
         if not Kitten.objects.filter(id=kitten_id).exists():
-            return Response({"detail": "Котенок не найден."}, status=400)
+            raise ValidationError({"detail": "Котенок с данным ID не найден."})
 
         # Привязать рейтинг к пользователю
         serializer.save(user=self.request.user)

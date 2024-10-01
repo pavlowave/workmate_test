@@ -9,10 +9,10 @@ class BreedSerializer(serializers.ModelSerializer):
 class KittenSerializer(serializers.ModelSerializer):
     average_rating = serializers.SerializerMethodField()
     breed_name = serializers.CharField(source='breed.name', read_only=True)
-
+    breed = serializers.PrimaryKeyRelatedField(queryset=Breed.objects.all())
     class Meta:
         model = Kitten
-        fields = ['id', 'breed_name', 'color', 'age_months', 'description', 'average_rating']
+        fields = ['id','breed', 'breed_name', 'color', 'age_months', 'description', 'average_rating']
         read_only_fields = ['owner']
 
     def get_average_rating(self, obj):

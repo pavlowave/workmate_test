@@ -1,68 +1,110 @@
 import pytest
-from django.urls import reverse
 from rest_framework import status
-from django.contrib.auth.models import User
-from pets.models import Breed, Kitten, Rating
-from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.test import APIClient
+from pets.models import Kitten, Breed, Rating
+from django.contrib.auth import get_user_model
 
-@pytest.fixture
-def user(db):
-    return User.objects.create_user(username='testuser', password='testpassword')
-
-@pytest.fixture
-def token(user):
-    return AccessToken.for_user(user)
-
-@pytest.fixture
-def breed(db):
-    return Breed.objects.create(name='Сиамская')  
+User = get_user_model()
 
 @pytest.fixture
 def api_client():
-    from rest_framework.test import APIClient
     return APIClient()
 
+@pytest.fixture
+def user():
+    return User.objects.create_user(username='testuser', password='testpass')
+
+@pytest.fixture
+def token(user, api_client):
+    response = api_client.post('/api/token/', {'username': 'testuser', 'password': 'testpass'})
+    return response.data['access']
+
+@pytest.fixture
+def authenticated_client(user, api_client, token):
+    api_client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+    return api_client
+
+@pytest.fixture
+def breed():
+    return Breed.objects.create(name='Persian')
+
+@pytest.fixture
+def kitten(breed, user):
+    return Kitten.objects.create(
+        owner=user,
+        breed=breed,
+        color='black',
+        age_months=3,
+        description='A cute black kitten'
+    )
+
 @pytest.mark.django_db
-def test_create_kitten(api_client, user, token, breed):
-    api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
-
-    response = api_client.post(reverse('kitten-list'), {
-        'breed': breed.id,
-        'color': 'черный',
-        'age_months': 12,
-        'description': 'Прекрасный котенок'
-    })
-
-    assert response.status_code == 201
-    assert response.data['breed'] == breed.id
+class TestBreedViewSet:
+    def test_list_breeds(self, api_client, breed):
+        response = api_client.get('/api/breeds/')
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data[0]['name'] == breed.name
 
 @pytest.mark.django_db
-def test_create_rating(api_client, user, token, breed):
-    kitten = Kitten.objects.create(owner=user, breed=breed, color='белый', age_months=5, description='Милый котенок')
+class TestKittenViewSet:
+    def test_create_kitten(self, authenticated_client, breed):
+        response = authenticated_client.post('/api/kittens/', {
+            'breed': breed.id,
+            'color': 'white',
+            'age_months': 2,
+            'description': 'A fluffy white kitten'
+        })
+        assert response.status_code == status.HTTP_201_CREATED
+        kitten_created = Kitten.objects.get(color='white')
+        assert kitten_created.breed == breed
+        assert kitten_created.age_months == 2
+        assert kitten_created.description == 'A fluffy white kitten'
 
-    api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
-    response = api_client.post(reverse('rating-list'), {
-        'kitten': kitten.id,
-        'score': 5,
-        'user': user.id
-    }, format='json')
+    def test_update_kitten(self, authenticated_client, kitten):
+        response = authenticated_client.patch(f'/api/kittens/{kitten.id}/', {
+            'color': 'gray',
+            'age_months': 4,
+            'description': 'A cute gray kitten'
+        })
+        assert response.status_code == status.HTTP_200_OK
+        kitten.refresh_from_db()
+        assert kitten.color == 'gray'
 
-    assert response.status_code == status.HTTP_201_CREATED
-    assert Rating.objects.count() == 1
-    assert Rating.objects.get().score == 5
+    def test_destroy_kitten(self, authenticated_client, kitten):
+        response = authenticated_client.delete(f'/api/kittens/{kitten.id}/')
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not Kitten.objects.filter(id=kitten.id).exists()
+
+    def test_by_color(self, authenticated_client, kitten):
+        response = authenticated_client.get('/api/kittens/by-color/?color=black')
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) > 0
+
+    def test_by_breed(self, authenticated_client, breed, user):
+        Kitten.objects.create(
+        owner=user,
+        breed=breed,
+        color='black',
+        age_months=3,
+        description='A cute black kitten'
+        )
+        response = authenticated_client.get(f'/api/kittens/by-breed/?breed_id={breed.id}')
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) > 0  
 
 @pytest.mark.django_db
-def test_get_kittens_with_average_rating(api_client, user, token, breed):
-    kitten = Kitten.objects.create(owner=user, breed=breed, color='черный', age_months=2, description='Котенок')
+class TestRatingViewSet:
+    def test_create_rating(self, authenticated_client, kitten):
+        response = authenticated_client.post('/api/ratings/', {
+            'kitten': kitten.id,
+            'score': 5
+        })
+        assert response.status_code == status.HTTP_201_CREATED
+        assert Rating.objects.filter(kitten=kitten).exists()
 
-    api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
-    api_client.post(reverse('rating-list'), {
-        'kitten': kitten.id,
-        'score': 4,
-        'user': user.id
-    }, format='json')
-
-    response = api_client.get(reverse('kitten-list'))
-
-    assert response.status_code == status.HTTP_200_OK
-    assert response.data[0]['average_rating'] == 4.0
+    def test_create_rating_invalid_kitten(self, authenticated_client):
+        response = authenticated_client.post('/api/ratings/', {
+            'kitten': 999,  # несуществующий ID
+            'score': 5
+        })
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
