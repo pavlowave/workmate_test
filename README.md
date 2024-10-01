@@ -30,7 +30,7 @@
 
 1. **Клонируйте репозиторий**:
    ```
-    git clone https://github.com/pavlowave/workmate_test.git
+   git clone https://github.com/pavlowave/workmate_test.git
    cd workmate_test
    ```
 2. **Создайте и активируйте виртуальное окружение**:
