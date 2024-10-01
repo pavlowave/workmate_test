@@ -105,7 +105,7 @@ print("Access Token:", token_data['access'])
 Для добавления котенка, необходимо передать:
 ```
 {
-    "breed": "Persian",
+    "breed": 1,
     "color": "Белый",
     "age_months": 3,
     "description": "Милый и игривый котенок."
