@@ -72,7 +72,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 ```
 user = User.objects.create_user(username='kittenlover', password='kittenpassword')
 ```
-# Генерация JWT токена для конкретного пользователя
+ Генерация JWT токена для конкретного пользователя
 ```
 refresh = RefreshToken.for_user(user)
 token_data = {
@@ -80,18 +80,18 @@ token_data = {
     'access': str(refresh.access_token),
 }
 ```
-# Создание пород
+ Создание пород
 ```
 breed1 = Breed.objects.create(name='Siamese')
 breed2 = Breed.objects.create(name='Persian')
 breed3 = Breed.objects.create(name='Maine Coon')
 ```
-# Проверка созданных объектов
+ Проверка созданных объектов
 ```
 print(User.objects.all())
 print(Breed.objects.all())
 ```
-# Печать токенов только для созданного пользователя
+ Печать токенов только для созданного пользователя
 ```
 print(f"Tokens for user '{user.username}':")
 print("Refresh Token:", token_data['refresh'])
