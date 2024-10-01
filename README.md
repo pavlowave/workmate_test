@@ -49,7 +49,7 @@
    ```
 5. **Создаем БД:**:
    ```
-   python manage.py migrate makemigrations
+   python manage.py makemigrations
    python manage.py migrate
    ```
    Создаем пользователя для админки:
