@@ -54,7 +54,7 @@
    ```
    Создаем пользователя для админки:
    ```
-   ./manage.py createsuperuser
+   python manage.py createsuperuser
    ```
    
    
