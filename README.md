@@ -30,7 +30,8 @@
 
 1. **Клонируйте репозиторий**:
    ```
-    git clone https://github.com/pavlowave/workmate_test.git
+   git clone https://github.com/pavlowave/workmate_test.git
+   cd workmate_test
    ```
 2. **Создайте и активируйте виртуальное окружение**:
    ```
@@ -46,18 +47,14 @@
    ```
    cd backend
    ```
-   Создаем файл .env со следующим содержимым:
+5. **Создаем БД:**:
    ```
-   SECRET_KEY='django-insecure-hr6$9j654uu8n4o61gha#+&5mu!a3889ow*yf&w^hha313r3uy'
-   ```
-6. **Создаем БД:**:
-   ```
-   python manage.py migrate makemigrations
+   python manage.py makemigrations
    python manage.py migrate
    ```
    Создаем пользователя для админки:
    ```
-   ./manage.py createsuperuser
+   python manage.py createsuperuser
    ```
    
    
@@ -66,37 +63,40 @@
    python manage.py shell
    ```
  в Django Shell:
- 
-   ```
-      from django.contrib.auth.models import User
-      from pets.models import Breed
-      from rest_framework_simplejwt.tokens import RefreshToken
-      
-      # Создание пользователя
-      user = User.objects.create_user(username='kittenlover', password='kittenpassword')
-      
-      # Генерация JWT токена для конкретного пользователя
-      refresh = RefreshToken.for_user(user)
-      token_data = {
-          'refresh': str(refresh),
-          'access': str(refresh.access_token),
-      }
-      
-      # Создание пород
-      breed1 = Breed.objects.create(name='Siamese')
-      breed2 = Breed.objects.create(name='Persian')
-      breed3 = Breed.objects.create(name='Maine Coon')
-      
-      # Проверка созданных объектов
-      print(User.objects.all())
-      print(Breed.objects.all())
-      
-      # Печать токенов только для созданного пользователя
-      print(f"Tokens for user '{user.username}':")
-      print("Refresh Token:", token_data['refresh'])
-      print("Access Token:", token_data['access'])
-
-   ```
+ ```
+from django.contrib.auth.models import User
+from pets.models import Breed
+from rest_framework_simplejwt.tokens import RefreshToken
+```
+Создание пользователя
+```
+user = User.objects.create_user(username='kittenlover', password='kittenpassword')
+```
+ Генерация JWT токена для конкретного пользователя
+```
+refresh = RefreshToken.for_user(user)
+token_data = {
+    'refresh': str(refresh),
+    'access': str(refresh.access_token),
+}
+```
+ Создание пород
+```
+breed1 = Breed.objects.create(name='Siamese')
+breed2 = Breed.objects.create(name='Persian')
+breed3 = Breed.objects.create(name='Maine Coon')
+```
+ Проверка созданных объектов
+```
+print(User.objects.all())
+print(Breed.objects.all())
+```
+ Печать токенов только для созданного пользователя
+```
+print(f"Tokens for user '{user.username}':")
+print("Refresh Token:", token_data['refresh'])
+print("Access Token:", token_data['access'])
+```
   Реализовал сигнал, который создает еще один токен автоматом и показывает его. Время жизни токена установлено 60 минут, для более удобного тестирования(настраиваестя в settings.py проекта)
   С помощью токена можно протестировать api в ```http://127.0.0.1:8000/swagger/```. В настрйоках настроены SECURITY_DEFINITIONS в SWAGGER_SETTINGS.
 
@@ -105,7 +105,7 @@
 Для добавления котенка, необходимо передать:
 ```
 {
-    "breed": "Persian",
+    "breed": 1,
     "color": "Белый",
     "age_months": 3,
     "description": "Милый и игривый котенок."
